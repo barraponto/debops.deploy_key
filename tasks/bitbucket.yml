@@ -1,0 +1,14 @@
+---
+# tasks file for debops.deploy_keys
+
+- name: Setup deploy keys (bitbucket)
+  uri:
+    url: 'https://bitbucket.org/api/1.0/repositories/{{ bitbucket_user }}/{{ item[0] }}/deploy-keys'
+    method: 'POST'
+    user: '{{ bitbucket_user }}'
+    password: '{{ bitbucket_password }}'
+    body: '{{ dict(key=item[1].ssh_public_key, label=item[1].name + "@" + ansible_hostname + " by Debops")|urlencode }}'
+    force_basic_auth: True
+  with_nested:
+    - bitbucket_repositories
+    - deploy_key_register_users.results
